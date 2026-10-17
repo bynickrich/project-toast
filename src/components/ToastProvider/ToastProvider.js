@@ -1,12 +1,12 @@
 import React from "react";
 
-export const ToastContext = React.createContext();
+const ToastContext = React.createContext();
 
 function ToastProvider({ children }) {
   const [toasts, setToasts] = React.useState([]);
 
   function handleDismiss(id) {
-    setToasts(toasts.filter((toasts) => toasts.id !== id));
+    setToasts(toasts.filter((toast) => toast.id !== id));
   }
 
   function handleCreateToast(e, message, variant) {
@@ -19,6 +19,15 @@ function ToastProvider({ children }) {
   return (
     <ToastContext.Provider value={value}>{children}</ToastContext.Provider>
   );
+}
+
+export function useToast() {
+  const context = React.useContext(ToastContext);
+  if (context === undefined) {
+    throw new Error("useToast must be used with a ToastProvider");
+  }
+
+  return context;
 }
 
 export default ToastProvider;
