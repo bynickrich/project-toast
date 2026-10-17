@@ -3,17 +3,23 @@ import React from "react";
 import Button from "../Button";
 
 import styles from "./ToastPlayground.module.css";
-import Toast from "../Toast/Toast";
+import ToastShelf from "../ToastShelf/ToastShelf";
 
 const VARIANT_OPTIONS = ["notice", "warning", "success", "error"];
 
 function ToastPlayground() {
+  const [toasts, setToasts] = React.useState([]);
   const [message, setMessage] = React.useState("");
   const [variant, setVariant] = React.useState("");
-  const [showToast, setShowToast] = React.useState(false);
 
-  function handleDismiss() {
-    setShowToast(false);
+  function handleDismiss(id) {
+    setToasts(toasts.filter((toasts) => toasts.id !== id));
+  }
+
+  function handleCreateToast(e) {
+    e.preventDefault();
+    const newToast = { id: crypto.randomUUID(), message, variant };
+    setToasts([...toasts, newToast]);
     setMessage("");
     setVariant("");
   }
@@ -25,15 +31,8 @@ function ToastPlayground() {
         <h1>Toast Playground</h1>
       </header>
 
-      {showToast && (
-        <Toast
-          message={message}
-          variant={variant}
-          handleDismiss={handleDismiss}
-        />
-      )}
-
-      <div className={styles.controlsWrapper}>
+      <ToastShelf toasts={toasts} handleDismiss={handleDismiss} />
+      <form className={styles.controlsWrapper} onSubmit={handleCreateToast}>
         <div className={styles.row}>
           <label
             htmlFor="message"
@@ -48,12 +47,13 @@ function ToastPlayground() {
               className={styles.messageInput}
               value={message}
               onChange={(e) => setMessage(e.target?.value)}
+              required
             />
           </div>
         </div>
 
         <div className={styles.row}>
-          <fieldset className={`${styles.inputWrapper} ${styles.radioWrapper}`}>
+          <div className={`${styles.inputWrapper} ${styles.radioWrapper}`}>
             <legend className={styles.label}>Variant</legend>
             {VARIANT_OPTIONS.map((choice) => (
               <label htmlFor={`variant-${choice}`}>
@@ -64,20 +64,21 @@ function ToastPlayground() {
                   value={choice}
                   onChange={() => setVariant(choice)}
                   checked={variant === choice}
+                  required
                 />
                 {choice}
               </label>
             ))}
-          </fieldset>
+          </div>
         </div>
 
         <div className={styles.row}>
           <div className={styles.label} />
           <div className={`${styles.inputWrapper} ${styles.radioWrapper}`}>
-            <Button onClick={() => setShowToast(true)}>Pop Toast!</Button>
+            <Button type="submit">Pop Toast!</Button>
           </div>
         </div>
-      </div>
+      </form>
     </section>
   );
 }
