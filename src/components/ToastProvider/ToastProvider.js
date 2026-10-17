@@ -1,9 +1,13 @@
 import React from "react";
+import useEscapeKey from "../../hooks/useEscapeKey";
 
 const ToastContext = React.createContext();
 
 function ToastProvider({ children }) {
   const [toasts, setToasts] = React.useState([]);
+  const handleEscape = React.useCallback(() => setToasts([]));
+
+  useEscapeKey(handleEscape);
 
   const handleDismiss = React.useCallback((id) => {
     setToasts((current) => current.filter((toast) => toast.id !== id));
@@ -17,7 +21,7 @@ function ToastProvider({ children }) {
 
   const value = React.useMemo(
     () => ({ toasts, handleDismiss, handleCreateToast }),
-    [toasts, handleDismiss, handleCreateToast]
+    [toasts, handleDismiss, handleCreateToast],
   );
   return (
     <ToastContext.Provider value={value}>{children}</ToastContext.Provider>
