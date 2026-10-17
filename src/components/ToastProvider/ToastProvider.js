@@ -5,17 +5,20 @@ const ToastContext = React.createContext();
 function ToastProvider({ children }) {
   const [toasts, setToasts] = React.useState([]);
 
-  function handleDismiss(id) {
-    setToasts(toasts.filter((toast) => toast.id !== id));
-  }
+  const handleDismiss = React.useCallback((id) => {
+    setToasts((current) => current.filter((toast) => toast.id !== id));
+  }, []);
 
-  function handleCreateToast(e, message, variant) {
+  const handleCreateToast = React.useCallback((e, message, variant) => {
     e.preventDefault();
     const newToast = { id: crypto.randomUUID(), message, variant };
-    setToasts([...toasts, newToast]);
-  }
+    setToasts((current) => [...current, newToast]);
+  }, []);
 
-  const value = { toasts, handleDismiss, handleCreateToast };
+  const value = React.useMemo(
+    () => ({ toasts, handleDismiss, handleCreateToast }),
+    [toasts, handleDismiss, handleCreateToast]
+  );
   return (
     <ToastContext.Provider value={value}>{children}</ToastContext.Provider>
   );
